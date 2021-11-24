@@ -1,88 +1,88 @@
 <template lang="pug">
-
-	.popup(v-if="data")
-		pageHeader(
-			:useBack="false"
-			:title="`${data.locationName}`"
+.popup(v-if='data')
+	pageHeader(:useBack='false', :title='`${data.locationName}`')
+		el-link(
+			:href='opendataLinkUrl',
+			target='_blank',
+			rel='noopener',
+			icon='el-icon-question',
+			style='float: right; margin: 0.5rem 0',
+			title='查看資料來源'
 		)
-			el-link(
-				:href="opendataLinkUrl"
-				target="_blank"
-				rel="noopener"
-				icon="el-icon-question"
-				style="float:right;margin:0.5rem 0;"
-				title="查看資料來源"
-			)
 
-		//- 項目卡片
-		.cardGrid
-			template(v-if="tab")
-				el-tabs(v-model="activeTab")
-					template(v-for="(dtab, idx) in dateTab")
-						el-tab-pane(:label="dateTabLabel[idx]" :name="idx")
-							template(v-for="(obj, idx) in dtab")
-								el-card.dataCard(shadow="hover")
-									.dataCard__row
-										h3 {{getDateTime(obj['dataTime'])}}
-									.dataCard__row
-										el-card.dataCard(shadow="hover")
-											.dataCard__row
-												img(fit="scale-down" style="max-height: 30px;" :src="getWxUrl(obj)" :alt="obj['Wx'][1].value")
+	//- 項目卡片
+	.cardGrid
+		template(v-if='tab')
+			el-tabs(v-model='activeTab')
+				template(v-for='(dtab, idx) in dateTab')
+					el-tab-pane(:label='dateTabLabel[idx]', :name='idx.toString()')
+						template(v-for='(obj, idx) in dtab')
+							el-card.dataCard(shadow='hover')
+								.dataCard__row
+									h3 {{ getDateTime(obj["dataTime"]) }}
+								.dataCard__row
+									el-card.dataCard(shadow='hover')
+										.dataCard__row
+											img(
+												fit='scale-down',
+												style='max-height: 30px',
+												:src='getWxUrl(obj)',
+												:alt='obj["Wx"][1].value'
+											)
+											span
+												h3.caption
+													big {{ obj["Wx"][1].value }}
+
+									el-card.dataCard(shadow='hover')
+										.dataCard__row
+											h3 {{ tab["Sky"] }}
+											span
+												h3.caption
+													big {{ obj["Sky"].value }}
+												el-tag(type='warning', size='medium') {{ obj["Sky"].measures }}
+
+								.dataCard__row
+									template(v-for='name in windList')
+										el-card.dataCard(shadow='hover')
+											.dataCard__row(@click='windUnitChange(obj[name])')
+												h3 {{ tab[name] }}
 												span
 													h3.caption
-														big {{obj['Wx'][1].value}}
+														big {{ getWind(obj[name]).value }}
+													el-tag(type='warning', size='medium') {{ getWind(obj[name]).measures }}
 
-										el-card.dataCard(shadow="hover")
-											.dataCard__row
-												h3 {{tab['Sky']}}
+								.dataCard__row
+									template(v-for='name in flowList')
+										el-card.dataCard(shadow='hover')
+											.dataCard__row(@click='flowUnitChange(obj[name])')
+												h3 {{ tab[name] }}
 												span
 													h3.caption
-														big {{obj['Sky'].value}}
-													el-tag(type="warning" size="medium") {{obj['Sky'].measures}}
+														big {{ getFlow(obj[name]).value }}
+													el-tag(type='warning', size='medium') {{ getFlow(obj[name]).measures }}
 
-									.dataCard__row
-										template(v-for="name in windList")
-											el-card.dataCard(shadow="hover")
-												.dataCard__row(@click="windUnitChange(obj[name])")
-													h3 {{tab[name]}}
-													span
-														h3.caption
-															big {{getWind(obj[name]).value}}
-														el-tag(type="warning" size="medium") {{getWind(obj[name]).measures}}
+								.dataCard__row
+									template(v-for='name in waveList')
+										el-card.dataCard(shadow='hover')
+											.dataCard__row
+												h3 {{ tab[name] }}
+												span
+													h3.caption
+														big {{ obj[name].value }}
+													el-tag(type='warning', size='medium') {{ obj[name].measures }}
 
-									.dataCard__row
-										template(v-for="name in flowList")
-											el-card.dataCard(shadow="hover")
-												.dataCard__row(@click="flowUnitChange(obj[name])")
-													h3 {{tab[name]}}
-													span
-														h3.caption
-															big {{getFlow(obj[name]).value}}
-														el-tag(type="warning" size="medium") {{getFlow(obj[name]).measures}}
-
-									.dataCard__row
-										template(v-for="name in waveList")
-											el-card.dataCard(shadow="hover")
-												.dataCard__row
-													h3 {{tab[name]}}
-													span
-														h3.caption
-															big {{obj[name].value}}
-														el-tag(type="warning" size="medium") {{obj[name].measures}}
-
-		el-backtop(target=".el-drawer__body")
+	el-backtop(target='.el-drawer__body')
 </template>
 
 <script>
-
-import pageHeader from "@/components/common/pageHeader"
+import pageHeader from '@/components/common/pageHeader';
 
 export default {
-	name:"forecastResult",
-	components:{
+	name: 'forecastResult',
+	components: {
 		pageHeader,
 	},
-	data:()=>({
+	data: () => ({
 		waveList: ['WaveH', 'WaveD', 'WaveP'],
 
 		flowList: ['CS', 'CD'],
@@ -93,20 +93,18 @@ export default {
 
 		activeTab: 0,
 	}),
-	props:{
-		data: {
-		},
-		tab: {
-		},
+	props: {
+		data: {},
+		tab: {},
 		layer: {
-			lyr:Object
+			lyr: Object,
 		},
 	},
-	computed:{
+	computed: {
 		opendataLinkUrl() {
 			return `https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID=${this.data.geocode}`;
 		},
-/*		dataModel(){
+		/*		dataModel(){
 			if (!this.dateTab) return null;
 			console.log("dataModel()", this, this.dateTab, this.activeTab)
 			return this.dateTab[this.activeTab];
@@ -137,16 +135,14 @@ export default {
 
 		this.dateTab = tabs;
 		this.dateTabLabel = tabLabel;
-//console.log("[created]", this, this.dateTab);
+		//console.log("[created]", this, this.dateTab);
 	},
-	mounted() {
-
-	},
-	methods:{
-		getDateTime(datetime){
+	mounted() {},
+	methods: {
+		getDateTime(datetime) {
 			return new Date(datetime).toLocaleString();
 		},
-		getWxUrl(obj){
+		getWxUrl(obj) {
 			const val = obj['Wx'][0].value;
 			if (!val) return '';
 			return `https://www.cwb.gov.tw/V8/assets/img/weather_icons/weathers/svg_icon/day/${val}.svg`;
@@ -165,8 +161,8 @@ export default {
 			if (!vals.length) return;
 			this.windUnitIdx = (this.windUnitIdx + 1) % vals.length;
 		},
-	}
-}
+	},
+};
 </script>
 
 <style lang="scss">
@@ -175,15 +171,14 @@ export default {
 }
 </style>
 <style lang="scss" scoped>
-
-.popup{
+.popup {
 	margin: 0 auto;
 	max-width: 90vw;
 	min-width: 300px;
 }
 
 .caption {
-	color:$primary;
+	color: $primary;
 	display: inline;
 	margin: 0 0.5rem;
 }
@@ -198,30 +193,31 @@ export default {
 }
 
 /deep/ {
-	.el-tag,.el-card{
+	.el-tag,
+	.el-card {
 		border-radius: 1rem;
 	}
-	.el-tag{
+	.el-tag {
 		margin-left: 0.5rem;
 	}
-	.el-card{
+	.el-card {
 		background-color: #fff;
-		&__body{
+		&__body {
 			line-height: 150%;
 		}
 	}
 }
 
-.scroll{
+.scroll {
 	width: 100%;
 	overflow: hidden;
-	&__wrapper{
+	&__wrapper {
 		white-space: nowrap;
 	}
-	&__content{
+	&__content {
 		display: inline-block;
 	}
-	&__item{
+	&__item {
 		display: inline-block;
 		padding: 1rem;
 		margin: 0.5rem;
@@ -230,35 +226,36 @@ export default {
 	}
 }
 
-.cardGrid{
+.cardGrid {
 	flex-wrap: wrap;
 }
 
-.dataCard{
+.dataCard {
 	flex: 1 1 300px;
 	margin: 0.5rem;
-	&--actived{
-		background-color: rgba($primary,0.1);
+	&--actived {
+		background-color: rgba($primary, 0.1);
 		border: 1px solid $primary;
 	}
-	@media screen and (max-width:768px){
+	@media screen and (max-width: 768px) {
 		flex: 1 1 300px;
-		&--actived{
+		&--actived {
 			position: sticky;
 			bottom: 1rem;
 			background-color: $primary;
 			color: #ffffff;
-			.caption{ color: #ffffff; }
+			.caption {
+				color: #ffffff;
+			}
 		}
 	}
 	&__row {
-		&>*{
+		& > * {
 			margin: 0;
 		}
-		display:flex;
-		justify-content:space-between;
+		display: flex;
+		justify-content: space-between;
 		align-items: center;
 	}
 }
-
 </style>

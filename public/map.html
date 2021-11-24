@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <meta name="description" content="海域遊憩活動一站式資訊平臺">
+    <meta name="keyword" content="海洋委員會,海域遊憩,一站式資訊平臺">
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=fetch" integrity="sha512-xDZpa27xH5TVhozTsn7j6Mg5gXQr2ml8jREylWWUJxJwykzQk3Gu3bGnbrhYgMEHyCkQiuS0rqZhHFSCgRRnRw==" crossorigin="anonymous"></script>
+    <style>
+        * {
+            -ms-overflow-style: none;
+        }
+    </style>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', 'UA-170467042-1');
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-170467042-1"></script>
+    <title>海域整合資訊</title>
+</head>
+
+<body>
+    <noscript>
+        <strong>It doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+</body>
+
+<script>
+    /* spedd up */
+    L.CRS.scale = L.CRS.EPSG3857.scale = L.CRS.EPSG3395.scale = L.CRS.EPSG4326.scale = L.CRS.EPSG900913.scale = L.CRS.Earth.scale = function(zoom) {
+        return 2 ** (zoom + 8)
+    };
+    L.CRS.Simple = function(zoom) {
+        return 2 ** zoom
+    };
+</script>
+</html>

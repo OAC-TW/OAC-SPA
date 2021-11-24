@@ -42,7 +42,7 @@
 				@input="handleBaseLayerVisibility($event);layerListVisibility=false"
 			)
 				el-radio(
-					v-for="lyr,index in allLayerList"
+					v-for="(lyr,index) in allLayerList"
 					:key="`${index}`"
 					:label="`${lyr.id}`"
 					border

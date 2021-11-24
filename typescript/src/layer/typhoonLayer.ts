@@ -12,8 +12,10 @@ export class TyphoonLayer extends L.Layer implements ILayer{
     imgUrl?: string
     legendColor?: string
     icon?: string
+    iconUrl?: string
     status:"loading"|"loaded"|"error"
     lyrOpts:any
+    enable: boolean
 
     constructor({
         id,
@@ -25,6 +27,7 @@ export class TyphoonLayer extends L.Layer implements ILayer{
         sortable,
         opacity,
         dataSet,
+        enable,
         ...lyrOpts
     }){
         super()
@@ -38,6 +41,9 @@ export class TyphoonLayer extends L.Layer implements ILayer{
         this.opacity = opacity
         this.dataSet = dataSet
         this.lyrOpts = lyrOpts
+        this.enable = enable
+        this.icon = lyrOpts?.layerOption?.icon
+        this.iconUrl = lyrOpts?.layerOption?.iconUrl
     }
 
     

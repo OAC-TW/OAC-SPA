@@ -45,8 +45,9 @@
 
 					div(ref="outterButton" style="display:flex;align-items:center;")
 						el-switch(
+							:disabled="isLoading || isPinned"
 							:value="layer.visible"
-							:title="layer.visible?'關閉圖層':'開啟圖層'"
+							:title="switchTitle"
 							@change="$emit('switch',$event)"
 						)
 
@@ -63,14 +64,14 @@
 
 							.dataSetLink(slot="content")
 								strong 資料來源
-								div(v-for="i,index in layer.dataSet")
+								div(v-for="(i,index) in layer.dataSet")
 									a(
 										target="_blank"
-										:rel="noopener"
+										rel="noopener"
 										:href="i.value"
 									) {{i.label}}
 
-				div(
+				div.layer-card__content__slider(
 					v-if="detailVisibility && layer.visible && !isOutScaleStyle"
 					ref="detailConfig"
 					style="z-index:1;"
@@ -112,6 +113,12 @@ export default {
 		dragging:{
 			type:Boolean
 		},
+		isLoading:{
+			type:Boolean
+		},
+		isPinned:{
+			type:Boolean
+		},
 		status: {
 			type:String,
 			validator: status => status === "" || status === "simple" || status === "outScale"
@@ -121,11 +128,21 @@ export default {
 		}
 	},
 	computed:{
+		// ...mapGetters({
+		// 	pinnedLayer: 'layer/pinnedLayer',
+		// }),
+		// isPinned() {
+		// 	return this.pinnedLayer.indexOf(this.layer.id) >= 0;
+		// },
 		isIE(){
 			return Boolean(document.documentMode)
 		},
 		dragAvaliable(){
 			return this.layer.type === "geojson"
+		},
+		switchTitle() {
+			if (this.isLoading) return '載入中...';
+			return this.layer.visible ? '關閉圖層' : '開啟圖層';
 		},
 		colorModel:{
 			get(){
@@ -175,7 +192,7 @@ export default {
 			if(this.$refs.detailConfig?.contains(evt.target)) return
 			if(this.$refs.dragger.contains(evt.target)) return
 			if(this.$refs.outterButton.contains(evt.target)) return
-			this.detailVisibility = !this.detailVisibility
+			if(this.layer.visible) this.detailVisibility = !this.detailVisibility
 		},
 		emitDeActiveLayer(layer){
 			if(this.isRetrival){
@@ -225,6 +242,9 @@ export default {
 				align-items: center;
 				justify-content: space-between;
 			}
+			&__slider{
+				cursor: initial;
+			}
 			&__detail{
 				display: flex;
 				align-items: center;
@@ -244,7 +264,14 @@ export default {
 					.vc-slider-swatches{
 						display: none;
 					}
+					.vc-hue-container {
+						cursor: ew-resize;
+					}
 				}
+			}
+
+			/deep/ .el-slider__runway {
+				cursor: ew-resize;
 			}
 		}
 
@@ -253,6 +280,11 @@ export default {
 			border: 1px dashed darken($info,20);
 			color: darken($info,20);
 			background-color: lighten($info,20);
+			/deep/ {
+				.el-card__body{
+					cursor: initial;
+				}
+			}
 		}
 		&--default{
 			border:0;
@@ -264,10 +296,10 @@ export default {
 		}
 
 	}
-	
+
 	.dragger{
-		padding: 0 1rem;
-		cursor: grab;
+		padding: .5rem 1rem;
+		cursor: ns-resize;
 		z-index: 2;
 	}
 

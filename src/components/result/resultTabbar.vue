@@ -9,7 +9,7 @@
         :closable="false"
     )
         el-tab-pane(
-            v-for="tab,index in tabsNames"
+            v-for="(tab,index) in tabsNames"
             :key="tab.title"
             :name="tab.title"
         )

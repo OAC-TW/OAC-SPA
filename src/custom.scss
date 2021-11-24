@@ -44,7 +44,7 @@ mixin
 html,
 body {
     font-size: 14px;
-    overflow: hidden;
+    // overflow: hidden;
     @media screen and (max-width: 768px) {
         font-size: 12px;
     }
@@ -58,6 +58,11 @@ body {
     -ms-text-size-adjust: 100%;
     text-rendering: optimizelegibility;
     letter-spacing: normal;
+}
+
+// disable default outline on chrome
+body *:focus {
+	outline:none;
 }
 
 
@@ -111,6 +116,26 @@ slide
     // opacity: 0;
 }
 
+/*
+slide-down
+*/
+.slide-down-enter-active {
+   transition-duration: 0.2s;
+   transition-timing-function: ease-in;
+}
+.slide-down-leave-active {
+   transition-duration: 0.2s;
+   transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+.slide-down-enter-to, .slide-down-leave {
+   max-height: 100px;
+   overflow: hidden;
+}
+.slide-down-enter, .slide-down-leave-to {
+   overflow: hidden;
+   max-height: 0;
+}
+
 
 /*
 fade
@@ -130,7 +155,6 @@ fade
 /*
 slide-fade
 */
-
 .slide-fade-enter-active {
     transition: all .1s ease;
 }
@@ -145,11 +169,27 @@ slide-fade
     opacity: 0;
 }
 
+/*
+slide-fade-right2left
+*/
+.slide-fade-right2left-enter-active {
+    transition: all .1s ease;
+}
+
+.slide-fade-right2left-leave-active {
+    transition: all .2s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+
+.slide-fade-right2left-enter,
+.slide-fade-right2left-leave-to {
+    transform: translateX(150%);
+    opacity: 0;
+}
+
 
 /*
 slide-fade-up
 */
-
 .slide-fade-up-move {
     transition: all .2s ease-in-out;
 }
@@ -177,6 +217,14 @@ slide-fade-up
     overflow-x: hidden;
     overflow-y: auto;
 }
+.leaflet-popup-content {
+	//margin: inherit;
+	margin: .7rem;
+}
+.leaflet-popup-scrolled {
+	border-bottom: unset;
+	border-top: unset;
+}
 
 .velocity-overlay,
 .gradient-overlay {
@@ -202,6 +250,13 @@ slide-fade-up
     background-color: #fff;
     position: relative;
     left: -10px;
+}
+.leaflet-mark-icon.is-highlight {
+	color: #f00;
+	border-color: #d65a5a;
+}
+.leaflet-mark-icon .iconImg {
+    width: 1.8rem;
 }
 
 .leaflet-div-icon {

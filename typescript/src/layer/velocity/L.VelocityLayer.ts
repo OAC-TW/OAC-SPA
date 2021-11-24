@@ -25,6 +25,7 @@ export class VelocityLayer extends L.Layer implements ILayer{
   imgUrl?: string;
   legendColor?: string;
   icon?: string;
+  iconUrl?: string;
   status:"loading"|"loaded"|"error"
   lyrOpts:any = null
   dataIndexDef:Array<{
@@ -32,7 +33,7 @@ export class VelocityLayer extends L.Layer implements ILayer{
       time08:string
   }>
   times:Array<string>
-  group: string
+  group: Array<{ name: string, order: number }>
   enable: boolean
 
   constructor({
@@ -59,6 +60,8 @@ export class VelocityLayer extends L.Layer implements ILayer{
     this.sortable = sortable
     this.opacity = opacity
     this.dataSet = dataSet
+    this.icon = lyrOpts?.layerOption?.icon
+    this.iconUrl = lyrOpts?.layerOption?.iconUrl
     this.lyrOpts = lyrOpts
     this.group = group
     this.enable = enable

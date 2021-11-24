@@ -20,7 +20,7 @@
 				.scroll__wrapper(ref="bsScroll")
 					.scroll__content
 						.scroll__item(
-							v-for="v,index in data.data" 
+							v-for="(v,index) in data.data" 
 							:key="v.Date_Time"
 						)
 							strong {{v.Date_Time}}
@@ -56,7 +56,7 @@
 			//- historyData / wave | 波浪海流
 			template(v-if="data.type==='wave' && dataModel")
 				el-card.dataCard(
-					v-for="v,k in wave_enmu_name"
+					v-for="(v,k) in wave_enmu_name"
 					@click.native="mouseEnterIndex = -1;selectedWave = k"
 					:key="k"
 					shadow="hover"

@@ -36,9 +36,11 @@ self.addEventListener('fetch', async function(evt) {
 });
 
 async function assetsFromCache(req) {
+	if (req.method !== 'GET') return fetch(req);
 	var cache = await caches.open(ACACHE_NAME);
-	if (req.url.match(/\/\?.*$/)) { // remove '/?xxxxx...'
-		req = './';
+	var url = new URL(req.url);
+	if (url.origin === location.origin && !url.pathname.match(/\/api\//) && url.search !== '') { // remove '/(yyyy)?xxxxx...'
+		req = url.pathname;
 	}
 	var resp = await cache.match(req) || fetch(req);
 	return resp;

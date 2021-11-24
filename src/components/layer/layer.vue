@@ -15,11 +15,21 @@
 				helperClass="dragging"
 				:transitionDuration="300"
 			)
+				.col.closeAll
+					label() 圖層總開關:
+					el-switch(
+						:value='canCloseAll()',
+						:disabled='!canCloseAll()',
+						title='關閉所有圖層',
+						@change='closeAll'
+					)
+
 				.col(v-if="pointerLayer.length")
 					small 地圖上帶有對應圖示的圓形，在縮放比例尺後可以得到更多關於點的資訊
 						.fixedTopList(style="position:relative;" )
 							.fixedTopList__collapse(:class="{'fixedTopList__collapse--hide':hideFixedTopList}")
 								layerItemFixedCard.slickList__card(
+									ref="pointlist"
 									v-for="layer in pointerLayer"
 									:key="layer.title"
 									:class="getStatusClassName(layer)"
@@ -27,6 +37,8 @@
 									:status="layer.status"
 									:dragging="dragging"
 									:useDragger="!isIE"
+									:isLoading="isLoading(layer.id)"
+									:isPinned="isPinned(layer.id)"
 									@switch="handleLayerVisibility(layer.id,$event)"
 									@opacitySlide="handleLayerOpacity(layer.id,$event)"
 								)
@@ -34,7 +46,7 @@
 					small 點擊地圖上的色塊來查詢區域內的資訊，點擊下方圖層來設定顏色或透明度，亦可以拖動來改變順序!
 					SlickItem(
 						ref="toggleAble"
-						v-for="layer,index in layerSortableModel"
+						v-for="(layer,index) in layerSortableModel"
 						:key="`${layer.id}`"
 						:index="index"
 						v-loading="updatingLayerList.indexOf(layer.id)>-1"
@@ -45,13 +57,15 @@
 							:status="layer.status"
 							:dragging="dragging"
 							:useDragger="!isIE"
+							:isLoading="isLoading(layer.id)"
+							:isPinned="isPinned(layer.id)"
 							@switch="handleLayerVisibility(layer.id,$event)"
 							@opacitySlide="handleLayerOpacity(layer.id,$event)"
 						)
 
 			//- baseMaps
-			.layer__footer
-				layerBaseMap
+			//- .layer__footer
+			//- 	layerBaseMap
 
 		//- 詮釋
 		el-dialog(
@@ -94,6 +108,12 @@ export default {
 		layerBaseMap,
 		layerItemFixedCard,
 	},
+	props: {
+		AutoScroll: {
+			type: Boolean,
+			default: false,
+		},
+	},
 	data:()=>({
 		dragging:false,
 		lastDraggingLyrPtr:'',
@@ -105,7 +125,9 @@ export default {
 		hideFixedTopList: false,
 		// 詮釋
 		dataSetDialogVisible:false,
-		dataSet:[]
+		dataSet:[],
+
+		loadingLayers: [],
 	}),
 	computed:{
 		...mapGetters({
@@ -113,6 +135,8 @@ export default {
 			sortableLayer: 'layer/sortableLayer',
 			unsortableLayer: 'layer/unsortableLayer',
 			weatherLayer: 'layer/weatherLayer',
+			pinnedLayer: 'layer/pinnedLayer',
+			visableLayer: 'layer/visableLayer',
 		}),
 		layer(){
 			return this.$store.state.layer.layer
@@ -189,33 +213,49 @@ export default {
 			this._toggleLayerWiggle(true) //- dom wiggle effect
 			this.lastDraggingLyrPtr = this.layerSortableModel[evt.index]
 		},
+		isPinned(id) {
+			return this.pinnedLayer.indexOf(id) >= 0;
+		},
+		isLoading(id) {
+			return this.loadingLayers.indexOf(id) >= 0;
+		},
+		setLoading(id, bool) {
+			if (bool) {
+				if (!this.isLoading(id)) this.loadingLayers.push(id);
+			} else {
+				let idx = this.loadingLayers.indexOf(id);
+				if (idx >= 0) this.loadingLayers.splice(idx, 1);
+			}
+		},
 		handleLayerVisibility(id,bool){
 			const lyrIns = this.$LayerIns.normalLayerCollection.find(l=>l.id === id)
 			if( lyrIns.status === "loading" ){
-				console.log("lyr loading now")
+				console.log("lyr loading now", lyrIns)
 				return
 			}
-			if( lyrIns.status === "error" ){
-				console.log("lyr loading error")
-				return
-			}
-			
-			this.UPDATE_LAYER_OPTIONS({id,
-				payload:{
-					visible:bool
-				}
-			})
-			
-			this.$LayerIns.setVisible(id,bool)
-			
-			lyrIns.once("loaded",()=>{
-				if(bool){ // restore previous options in state
+
+			if (bool) {
+				// disable switch
+				this.setLoading(id, true);
+				lyrIns.once("loaded", ()=>{
+					// restore previous options in state
 					const {opacity,legendColor} = this.layer.find(l=>l.id === id)
 					this.$LayerIns.setOpts(id,{opacity,color:`rgb(${legendColor})`})
-					console.log("[handleLayerVisibility , when layer open restore style in state]",opacity,legendColor)
-				}
-			})
+					console.log("[handleLayerVisibility , when layer open restore style in state]", lyrIns, opacity, legendColor)
 
+					// enable switch
+					this.setLoading(id, false);
+				});
+				lyrIns.once("error", (e) => {
+					console.log("lyr loading err", lyrIns, e);
+					this.$alert(`圖層資料載入發生錯誤:
+title: ${lyrIns?.title}
+UUID: ${lyrIns?.id}`, { type: 'error' });
+					this.$LayerIns.setVisible(id, false);
+					this.setLoading(id, false);
+				});
+			}
+			this.$LayerIns.setVisible(id, bool)
 		},
 		handleLayerOpacity(id,opacity){
 			this.$LayerIns.setOpts(id,{opacity})
@@ -231,8 +271,40 @@ export default {
 				'slickList__card--outScale':(layer.status==='outScale'),
 				'slickList__card--simple':(layer.status==='simple') || (this.matchKeywordLayers.length>0 && !this.matchKeywordLayers.indexOf(layer)>-1)
 			}
-		}
-	}
+		},
+		canCloseAll() {
+			let canClose = 0;
+			this.visableLayer.forEach((layer, i) => {
+				const id = layer.id;
+				if (!this.isPinned(id)) canClose++;
+			});
+			return canClose > 0;
+		},
+		closeAll(e) {
+			// console.log('[closeAll]', this, e);
+			this.visableLayer.forEach((layer, i) => {
+				const id = layer.id;
+				if (!this.isPinned(id)) this.$LayerIns.setVisible(id, false);
+			});
+		},
+		scrollToLay(lay) {
+			for (let v of lay) {
+				const dom = v.$el.children[0]
+				const comp = (v.$children[0].layer)? v.$children[0]: v;
+				if (comp?.layer?.visible) {
+					// console.log('[layer][toggleAble]', this, comp, dom, dom.offsetTop, comp.layer.visible, this.$refs['slickList'])
+					this.$refs['slickList']?.$el?.scrollTo(0, dom.offsetTop);
+					return;
+				}
+			}
+		},
+	},
+	mounted() {
+		// console.log('[layer]mounted()', this);
+		if (!this.AutoScroll) return;
+		this.scrollToLay(this.$refs['pointlist']);
+		this.scrollToLay(this.$refs['toggleAble']);
+	},
 }
 </script>
 
@@ -244,6 +316,20 @@ export default {
 	.col {
 		border-top: 0.75px solid rgba($info,0.5);
 		padding: 1rem 0;
+	}
+
+	.col.closeAll {
+		display: flex;
+		justify-content: space-between;
+		padding-left: 0.6rem;
+		padding-right: 0.6rem;
+		span {
+			align-self: center;
+		}
+		/deep/ .el-switch.is-checked .el-switch__core {
+			border-color: #0c67af;
+			background-color: #0c67af;
+		}
 	}
 
 	/deep/ .el-collapse-item__content{padding: 0;}

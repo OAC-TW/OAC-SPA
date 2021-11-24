@@ -5,7 +5,10 @@
 		:class="isOutScaleStyle ? 'layer-card--outscale' : !layer.visible ? 'layer-card--disabled ' :'layer-card--default'"
 	)
 		.icon
-			font-awesome-icon(:icon="layer.icon" fixed-width)
+			template(v-if="typeof layer.icon === 'string' && layer.icon.startsWith('url:')")
+				img.iconImg(:src="layer.icon.replace(/^(url:)/, '')")
+			template(v-else)
+				font-awesome-icon(:icon="layer.icon" fixed-width)
 
 		.layer-card__content
 			.layer-card__content__head
@@ -16,9 +19,9 @@
 				div(ref="outterButton" style="display:flex;align-items:center;")
 					//- 開關
 					el-switch(
-						:disabled="false"
+						:disabled="isLoading || isPinned"
 						:value="layer.visible"
-						:title="layer.visible?'關閉圖層':'開啟圖層'"
+						:title="switchTitle"
 						@change="$emit('switch',$event)"
 					)
 					el-tooltip(
@@ -35,9 +38,10 @@
 
 						.dataSetLink(slot="content")
 							strong 資料來源
-							div(v-for="i,index in layer.dataSet")
+							div(v-for="(i,index) in layer.dataSet")
 								a(
 									target="_blank"
+									rel="noopener"
 									:href="i.value"
 								) {{i.label}}
 
@@ -66,15 +70,25 @@ export default {
 		layer:{
 			type:Object
 		},
+		isLoading:{
+			type:Boolean
+		},
+		isPinned:{
+			type:Boolean
+		},
 		status: {
 			type:String,
 			validator: status => status === "" || status === "simple" || status === "outScale"
-		}
+		},
 	},
 	computed:{
+		switchTitle() {
+			if (this.isLoading) return '載入中...';
+			return this.layer.visible ? '關閉圖層' : '開啟圖層';
+		},
 		isOutScaleStyle(){
 			return this.status === 'outScale'
-		}
+		},
 	},
 	methods:{
 	},
@@ -105,6 +119,10 @@ export default {
 		padding: 0 1rem;
 		color: $primary;
 		z-index: 2;
+
+		.iconImg{
+			height: 1rem;
+		}
 	}
 	
 	.layer-card{

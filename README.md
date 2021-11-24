@@ -5,14 +5,14 @@
 npm install
 ```
 
+### Compiles Typescript
+```
+npm run tsc -- -w
+```
+
 ### Compiles and hot-reloads for development
 ```
 npm run serve
-```
-
-### Compiles Typescript
-```
-tsc -w
 ```
 
 ### Compiles and minifies for production
@@ -36,6 +36,22 @@ npm run build
 npm run deploy
 ```
 
+### URL參數
+
+* `?loc=23.830576,121.20172,7&cate=law&uuid=df595e60-6287-4623-8317-4b8d6f82e2e5&panel=礙航/射擊通報`
+	* `loc=<$latitude>,<$longitude>,<$level>`
+		* `<$latitude>` 緯度, 10進制, 有小數點
+		* `<$longitude>` 經度, 10進制, 有小數點
+		* `<$level>` 縮放層級, 整數
+	* `cate=<$catelog>`
+		* `<$catelog>` 分類內部值, 查`layerDef.json` >> `catelog`
+	* `uuid=<$layer_uuid>`
+		* `<$layer_uuid>` 圖層UUID, 查`layerDef.json` >> `layers` >> 圖層 >> `uuid`
+	* `panel=<$panel_title>`
+		* 待抽出?
+		* `/src/components/toolTopRight.vue` >> `@click="openDrawer('礙航/射擊通報')"`
+		* `src/components/info.vue` >> `template(v-if="value==='相關連結'")`, `template(v-else-if="value==='活動佈告欄'")`  ...
+
 ### About
 
 * PWA & vue.config.js ( webpack compile setting )
@@ -54,7 +70,7 @@ npm run deploy
         * [esri-leaflet 可載入 arcgis 圖層](http://esri.github.io/esri-leaflet)
         * [unsafely-treat-insecure-origin-as-secure](https://stackoverflow.com/questions/40696280/unsafely-treat-insecure-origin-as-secure-flag-is-not-working-on-chrome)
 
-* `./public/legend.json`
+* ~~`./public/legend.json`~~ 廢除, 移至`layerDef.json`
     ```typescript
         type A = {
             type:"color"|"text"
@@ -71,7 +87,7 @@ npm run deploy
             layerName:string // 圖層名稱正規字串
         } & ( A | B )>
     ```
-* `./public/layerCatelog.json`
+* ~~`./public/layerCatelog.json`~~ 廢除, 移至`layerDef.json`
     ```typescript
         Array<{
             catelog:{label:String,value:String} // 分類名稱定義
@@ -80,38 +96,63 @@ npm run deploy
     ```
 * `./public/layerDef.json`
     ```typescript
-        type geojson = {
-            type: "geojson",
-            pathOptions:{
-                opacity:number
-                color:string
-                weight:number
-                ... // see geojson.ts
-            },
-        }
-        type gradient = {
-            type: "gradient",
-            layerOption: {
-                interpolateType: "nearestneighbor"| string // 預設使用雙線性內插
-                ... // see gradient.ts
-            }
-        }
-        // 底圖
-        baseLayers:Array<{
-            type:"wmts"
-            title:string
-            url:string
-            imgUrl:string
-            opacity:number
-            maxZoom:number
-        }> 
-        // 一般圖層
-        layers:Array<{
-            title:string
-            url:string
-            visible:boolean
-            tag: Array<string> // ["A", "B", "C", "D"] from layerTags
-        } & (geojson|gradient)> 
+		type geojson = {
+			type: "geojson",
+			pathOptions:{
+				opacity:number
+				color:string
+				weight:number
+				... // see geojson.ts
+			},
+		}
+		type gradient = {
+			type: "gradient",
+			layerOption: {
+				interpolateType: "nearestneighbor"| string // 預設使用雙線性內插
+				... // see gradient.ts
+
+				type: string // 圖例類型
+				label: string // 圖例單位(顯示)
+				colorScaleLabel: Array<string> // 顏色對應的數值
+				colorScaleValue: Array<string> // 顏色定義
+				colorScaleLabelName: Array<string> // 數值的顯示名稱
+			}
+		}
+		type velocity = {
+			type: "velocity",
+			layerOption: {
+				velocityScale: number
+				lineWidth: number
+				particleAge: number
+				particleMultiplier: number
+				... // see windy.ts
+			}
+		}
+		// 底圖
+		baseLayers:Array<{
+			type:"wmts"
+			title:string
+			url:string
+			imgUrl:string
+			opacity:number
+			maxZoom:number
+		}> 
+		// 一般圖層
+		layers:Array<{
+			title:string
+			uuid:string
+			url:string
+			enable:boolean // 是否啟用(使用者看不到)
+			visible:boolean // 是否預設顯示(使用者可自行打開)
+			tag: Array<string> // ["A", "B", "C", "D"] from layerTags
+			catelog: Array<string> // ["situation", "weather"] from "catelog"
+			extra:string // 額外的UI顯示設定(dev)
+		} & (geojson|gradient)> 
+		// 分類
+		catelog:Array<{
+			label:string // 顯示名稱
+			value:string // 內部值
+		}>
     ```
 
 * 參考 `src/@types/index.d.ts`

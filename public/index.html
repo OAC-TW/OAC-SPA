@@ -1,53 +1,432 @@
 <!DOCTYPE html>
-<html lang="zh-tw">
+<html lang="zh-TW">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<!-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> -->
 
-    <meta name="description" content="海域遊憩活動一站式資訊平臺">
-    <meta name="keyword" content="海洋委員會,海域遊憩,一站式資訊平臺">
+	<meta name="description" content="海域遊憩活動一站式資訊平臺">
+	<meta name="keyword" content="海洋委員會,海域遊憩,一站式資訊平臺">
 
-    <script src="https://cdn.polyfill.io/v2/polyfill.js?features=fetch"></script>
-    <style>
-        * {
-            -ms-overflow-style: none;
-        }
-    </style>
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-        gtag('config', 'UA-170467042-1');
-    </script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-170467042-1"></script>
-    <title>海域整合資訊</title>
+	<title data-lang="site-title"><%= htmlWebpackPlugin.options.title %></title>
 </head>
 
 <body>
-    <noscript>
-        <strong>It doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
+	<!-- Modal2 海況-->
+	<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="weatherModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="weatherModalLabel" data-lang="btn-weather">海情海象</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row text-center">
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=44d021b6-d010-49cc-b9a6-2fd816e9d50b">
+								<img src="<%= require('@/intro/img/lightbox_page/wave2.svg') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-weather-wav">異常潛勢(瘋狗浪)</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=8a35fe3d-3e82-4c37-b73c-68f2f9489408&panel=$layer&autoscroll=1">
+								<img src="<%= require('@/intro/img/lightbox_page/arearisk.png') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-area-risk">海域風險</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=045fca57-8720-43df-85c9-955acd801fba">
+								<img src="<%= require('@/intro/img/lightbox_page/seasurfacestorm.jpg') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-seasurfacestorm">海面風波流</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=b7d12861-af3f-4cc0-847a-7d080ab03da0">
+								<img src="<%= require('@/intro/img/lightbox_page/observatory.png') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-observatory">商港觀測站</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=bc54a445-7b3d-43d1-80f9-10fbf5cec4b3">
+								<img src="<%= require('@/intro/img/lightbox_page/forecast.png') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-weather-forecast">近海天氣預報</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=8794829d-4d5e-4ba0-9133-ddd61719a4df">
+								<img src="<%= require('@/intro/img/lightbox_page/coastal.png') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-weather-forecasttown">沿海鄉鎮天氣預報</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=d48172cd-4ab4-4649-bcd1-1b0970827366">
+								<img src="<%= require('@/intro/img/lightbox_page/occeanCurrent.png') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-weather-oacuv">表面海流</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=ad990e52-379e-4e8f-89dd-e03e464b27f5">
+								<img src="<%= require('@/intro/img/lightbox_page/tidal.png') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-weather-tidal">潮汐資訊</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=1a2ede8e-59cd-464f-b964-e44d1476f5fd">
+								<img src="<%= require('@/intro/img/lightbox_page/quality.png') %>" class="item4-icon">
+								<div>
+									<span class="d-iline-block" data-lang="layer-weather-waterquality">海域水質</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<div class="weather-contentBlock">
+								<img src="<%= require('@/intro/img/lightbox_page/wave.png') %>" class="item4-icon">
+								<div>
+									<span class="d-block" data-lang="layer-weather-wav-dirhst">波浪資訊</span>
+									<a href="map.html?uuid=2438f673-3a6e-4762-8529-6a2cadc84a51" data-lang="layer-weather-wav-dirhst-hs">浪高</a>
+									<a href="map.html?uuid=3322298e-bbe1-4a91-8d9f-7205c228bdcc" data-lang="layer-weather-wav-dirhst-t">週期</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-sm-4">
+							<div class="weather-contentBlock">
+								<img src="<%= require('@/intro/img/lightbox_page/surfaceTemperature.png') %>" class="item4-icon">
+								<div>
+									<span class="d-block" data-lang="layer-weather-wav-ocm">波浪資訊</span>
+									<a href="map.html?uuid=9f3c63b0-7fe7-493a-9995-0e70dc4ae5b9" data-lang="layer-weather-wav-ocmsst">溫度</a>
+									<a href="map.html?uuid=5a1cb7a2-2c28-4860-a4c8-80c057929ea1" data-lang="layer-weather-wav-ocmwl">高度</a>
+									<a href="map.html?uuid=4b5fb55a-3d4e-412c-a23b-c0d3b950e886" data-lang="layer-weather-wav-ocmsalt">鹽度</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="map.html?uuid=af4e7611-41ee-4eb9-ba2e-29984463b7a1">
+								<img src="<%= require('@/intro/img/lightbox_page/marineRadiation.png') %>" class="item4-icon">
+								<div>
+									<span class="d-block" data-lang="link-marine-radiation">海域輻射資訊</span>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="https://www.windy.com/?23.652,121.278,8" target="_blank"
+								rel="noopener noreferrer nofollow">
+								<img src="<%= require('@/intro/img/lightbox_page/windy.png') %>" class="item4-icon">
+								<div>
+									<span class="d-block" data-lang="link-windy">Windy</span>
+									<p class="d-inline-block" data-lang="comm-external-link">(外部連結)</p>
+								</div>
+							</a>
+						</div>
+						<div class="col-6 col-sm-4">
+							<a href="https://safesee.cwb.gov.tw/V2/" target="_blank" rel="noopener noreferrer nofollow">
+								<img src="<%= require('@/intro/img/lightbox_page/cwb.png') %>" class="item4-icon">
+								<div>
+									<span class="d-block" data-lang="link-safesee">台灣氣象災防平台</span>
+									<p class="d-inline-block" data-lang="comm-external-link">(外部連結)</p>
+								</div>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal3 網站宣言-->
+	<div class="modal fade" id="exampleModal3" tabindex="-1" aria-labelledby="declarationModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title TealBlue" id="declarationModalLabel" data-lang="nav-agreement">網站宣言</h3>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-12">
+							<div class="my-3 p-2 rounded">
+								<p class="bold" data-lang="ua">
+									本系統係為便利一般民眾單站視覺化查詢海域遊憩活動相關規定，所呈現之法規、公告資料為各主管機關、各縣市政府所提供資料彙整而得，因各主管機關、各縣市資料建置時間之差異及建檔品質，與實際公告或有不同，實際內容仍依各主管機關、各縣市政府公告為準。
+								</br>
+									使用者不得將本系統所提供之資料內容或查詢結果作為任何形式之依據或主張，本會對於所有資料內容之正確性及完整性，皆不負擔保之責。使用者如因使用本系統之資料而受損害或損失，或因此導致使用者或第三人遭受損害或損失而遭求償者，本系統管理機關及各資料提供機關不負任何賠償或補償之責。
+								</br>
+									若屬全面性禁止事項或禁止採捕海域動、植物，例如海洋保育署公告之保育物種、漁業署公告之禁用漁法或禁止採捕魚種，即使沒在個別海域之法令中敘述，仍屬應遵守之規定。
+								</br>
+									使用者進入本系統，視同同意上開使用規範。本系統所有資料僅限正常查詢、瀏覽使用，未經本會同意之大量抄錄或複製資料行為，將依違反著作權法及妨礙電腦使用罪辦理。
+								</p>
+								<hr />
+								<div data-lang="ua-footer">本系統版權及管理機關為海洋委員會。</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal4 活動申請-->
+	<div class="modal fade" id="exampleModal4" tabindex="-1" aria-labelledby="eventApplyModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title TealBlue" id="eventApplyModalLabel" data-lang="btn-event">活動申請</h3>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body"  id="apply-content"></div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal5 活動布告欄-->
+	<div class="modal fade" id="exampleModal5" tabindex="-1" aria-labelledby="eventAnnonceModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title TealBlue" id="eventAnnonceModalLabel" data-lang="nav-bulletinboard">活動布告欄</h3>
+					<a class="rssbtn" href="./api/feed.xml" target="_blank" title="RSS feed"><i class="fas fa-rss-square"></i></a>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="anno-content"></div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal6 相關連結-->
+	<div class="modal fade" id="exampleModal6" tabindex="-1" aria-labelledby="linksModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title TealBlue" id="linksModalLabel" data-lang="nav-links">相關連結</h3>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="link-content"></div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal7 颱風消息與警報-->
+	<div class="modal fade" id="exampleModal7" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title TealBlue" id="alertModalLabel" data-lang="typhoon-alert">颱風消息與警報</h3>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<span class="row marquee" id="marquee" direction="dun"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<header class="wrapper-top wrapper-middle">
+		<div class="container">
+			<div class="row">
+				<a
+					class="col-12 text-center navbar-brand Alabaster py-lg-3 d-flex justify-content-center align-items-center">
+					<img src="<%= require('@/intro/img/LOGO.png') %>" alt="site logo" class="d-inline-block align-top logo">
+					<img src="<%= require('@/assets/logoOCA.png') %>" alt="oac logo" class="oca ms-3">
+				</a>
+			</div>
+			<div class="row row-cols-auto justify-content-center mb-2">
+				<div class="col">
+					<div class="dropdown btn-group">
+						<!-- <div class="btn-group"> -->
+							<button class="btn2 btn-lg dropdown-toggle TealBlue" type="button" data-bs-toggle="dropdown"
+								aria-expanded="false" id="buttontext">
+							</button>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item active tab" href="#" data-bs-toggle="modal"
+										data-bs-target="#exampleModal3" data-lang="nav-agreement">網站宣言</a>
+								</li>
+								<li>
+									<a class="dropdown-item tab" href="#" data-bs-toggle="modal"
+										data-bs-target="#exampleModal5" data-lang="nav-bulletinboard">活動布告欄</a>
+								</li>
+								<li>
+									<a class="dropdown-item tab" href="#" data-bs-toggle="modal"
+										data-bs-target="#exampleModal6" data-lang="nav-links">相關連結</a>
+								</li>
+								<li>
+									<a class="dropdown-item tab"
+										href="https://docs.google.com/forms/d/e/1FAIpQLScf7at41snW4-ZczKN3p2hR8M9VKj_Af82BWEsZg6uPfwnY3Q/viewform"
+										target="_blank" rel="noopener noreferrer nofollow" data-lang="nav-feedback">意見回饋<lr></a>
+								</li>
+								<li>
+									<a class="dropdown-item tab" href="./res/109_12_一站式_使用說明_V1.1.pdf"
+										target="_blank" data-lang="nav-help">使用說明(PDF)</a>
+								</li>
+								<!-- <li>
+									<a class="dropdown-item tab" href="map.html" data-lang="nav-map">進入完整圖台</a>
+								</li> -->
+								<li>
+									<a class="dropdown-item tab"
+										href="map.html?uuid=df595e60-6287-4623-8317-4b8d6f82e2e5&panel=weather" data-lang="nav-cctv">海況影像-CCTV</a>
+								</li>
+								<li>
+									<a class="dropdown-item tab"
+										href="map.html?uuid=5a28ec1b-3b9b-4d08-acdf-5198efc6ad37&panel=$layer&autoscroll=1" data-lang="nav-station">海洋驛站</a>
+								</li>
+							</ul>
+						<!-- </div> -->
+					</div>
+				</div>
+				<div class="col">
+					<div class="dropdown btn-group">
+						<button class="btn2 btn-lg dropdown-toggle TealBlue" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-lang="comm-lang">語言</button>
+						<ul class="dropdown-menu">
+							<li>
+								<a class="dropdown-item lang" data-lang="lang-cht" data-setlang="zh">中文</a>
+							</li>
+							<li>
+								<a class="dropdown-item lang" data-lang="lang-en" data-setlang="en">英文(en)</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row row-cols-auto mb-2 justify-content-center nav-bar">
+				<div class="col" data-bs-toggle="modal" data-bs-target="#exampleModal3">
+					<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-agreement">網站宣言</button>
+				</div>
+				<div class="col" data-bs-toggle="modal" data-bs-target="#exampleModal5">
+					<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-bulletinboard">活動布告欄</button>
+				</div>
+				<div class="col" data-bs-toggle="modal" data-bs-target="#exampleModal6">
+					<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-links">相關連結</button>
+				</div>
+				<a href="https://docs.google.com/forms/d/e/1FAIpQLScf7at41snW4-ZczKN3p2hR8M9VKj_Af82BWEsZg6uPfwnY3Q/viewform"
+					class="col" target="_blank" rel="noopener noreferrer nofollow">
+					<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-feedback">意見回饋</button>
+				</a>
+				<a href="./res/109_12_一站式_使用說明_V1.1.pdf" class="col" target="_blank">
+					<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-help">使用說明(PDF)</button>
+				</a>
+				<!-- <div class="col">
+					<a href="map.html">
+						<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-map">進入圖台</button>
+					</a>
+				</div> -->
+				<div class="col">
+					<a href="map.html?uuid=df595e60-6287-4623-8317-4b8d6f82e2e5&panel=weather">
+						<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-cctv">海況影像-CCTV</button>
+					</a>
+				</div>
+				<div class="col">
+					<a href="map.html?uuid=5a28ec1b-3b9b-4d08-acdf-5198efc6ad37&panel=$layer&autoscroll=1">
+						<button class="oacbtn btn OrchidPurple scoll" data-lang="nav-station">海洋驛站</button>
+					</a>
+				</div>
+				<div class="col">
+					<div class="dropdown">
+						<button class="btn2 btn-lg dropdown-toggle OrchidPurple" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-lang="comm-lang">語言</button>
+						<ul class="dropdown-menu">
+							<li>
+								<a class="dropdown-item lang" data-lang="lang-cht" data-setlang="zh">中文</a>
+							</li>
+							<li>
+								<a class="dropdown-item lang" data-lang="lang-en" data-setlang="en">英文(en)</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row row-cols-auto justify-content-center mb-2">
+				<button id="btnTyphoonAlert" style="display: none;" type="button" class="oacbtn btn rounded-pill btn-primary bg-light"
+					data-bs-toggle="modal" data-bs-target="#exampleModal7">
+					<i class="fas fa-cloud-showers-heavy text-primary"></i>
+					<!-- <i class="bi bi-cloud-rain text-primary "></i> -->
+					<span class="text-danger" data-lang="typhoon-alert">颱風消息與警報</span>
+					<span id="typhoonbadge" class="badge bg-secondary">0</span>
+				</button>
+			</div>
+		</div>
+	</header>
+	<div class="wrapper wrapper-middle">
+		<div class="container">
+			<div class="row main row-cols-3 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
+				<a href="" class="col p-3 d-flex justify-content-center align-items-center" data-bs-toggle="modal"
+					data-bs-target="#exampleModal4">
+					<div class="my-3 my-lg-2 OrchidPurple">
+						<img class="section-item-icon" src="<%= require('@/intro/img/leading_page/newspaper.svg') %>" alt="活動申請">
+					</div>
+					<button class="oacbtn btn Lotion" data-lang="btn-event">活動申請</button>
+				</a>
+				<a href="map.html?cate=law&panel=$layer&autoscroll=1"
+					class="col p-3 d-flex justify-content-center align-items-center">
+					<div class="my-3 my-lg-2 OrchidPurple">
+						<img class="section-item-icon" src="<%= require('@/intro/img/leading_page/law.svg') %>" alt="法令資訊">
+					</div>
+					<button class="oacbtn btn Lotion" data-lang="btn-law">法令資訊</button>
+				</a>
+				<a href="map.html?cate=relaxation&panel=relaxation"
+					class="col p-3 d-flex justify-content-center align-items-center">
+					<div class="my-3 my-lg-2 OrchidPurple">
+						<img class="section-item-icon" src="<%= require('@/intro/img/leading_page/kayak.svg') %>" alt="遊憩查詢">
+					</div>
+					<button class="oacbtn btn Lotion" data-lang="btn-relaxation">遊憩查詢</button>
+				</a>
+				<a href="" class="col p-3 d-flex justify-content-center align-items-center" data-bs-toggle="modal"
+					data-bs-target="#exampleModal2">
+					<div class="my-3 my-lg-2 OrchidPurple">
+						<img class="section-item-icon" src="<%= require('@/intro/img/leading_page/waves.svg') %>" alt="海情海象">
+					</div>
+					<button class="oacbtn btn Lotion" data-lang="btn-weather">海情海象</button>
+				</a>
+				<a href="map.html?cate=obstruct&panel=obstruct"
+					class="col p-3 d-flex justify-content-center align-items-center">
+					<div class="my-3 my-lg-2 OrchidPurple">
+						<img class="section-item-icon" src="<%= require('@/intro/img/leading_page/warning.svg') %>" alt="射擊通報">
+					</div>
+					<button class="oacbtn btn Lotion" data-lang="btn-shooting">射擊通報</button>
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<footer class="container text-center footer rounded-3">
+		<div class="row opacity pt-3 rounded-3">
+			<h6 class="col-12 col-sm-4 col-lg-2" data-lang="footer-company">&copy海洋委員會</h6>
+			<h6 class="col-12 col-sm-8 col-lg-4" data-lang="footer-addr">高雄市前鎮區成功二路25號4樓</h6>
+			<h6 class="col-12 col-sm-4 col-lg-2" data-lang="footer-tel">(07)338-1810</h6>
+			<h6 class="col-12 col-sm-8 col-lg-4">
+				<span data-lang="footer-pageview">瀏覽人次:</span><span id="pageViews" class="d-inline"></span>
+			</h6>
+		</div>
+	</footer>
+	<div id="stop" class="scrollTop">
+		<img src="<%= require('@/intro/img/up-arrow.svg') %>" alt="scroll to top">
+		<!-- <img src="require('@/assets/intro/up-arrow.svg')" alt="scroll to top"> -->
+	</div>
+
+	<div id="confirmModal" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header" style="border-bottom: unset;padding: 1rem 1rem 0 1rem;">
+					<h5 class="modal-title"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer" style="border-top: unset;padding: 0 0.75rem 0.75rem 0.75rem;">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+					<button type="button" class="btn btn-primary">確定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 </body>
-
-<script>
-    /* spedd up */
-    L.CRS.scale = L.CRS.EPSG3857.scale = L.CRS.EPSG3395.scale = L.CRS.EPSG4326.scale = L.CRS.EPSG900913.scale = L.CRS.Earth.scale = function(zoom) {
-        return 2 ** (zoom + 8)
-    };
-    L.CRS.Simple = function(zoom) {
-        return 2 ** zoom
-    };
-</script>
-
 </html>

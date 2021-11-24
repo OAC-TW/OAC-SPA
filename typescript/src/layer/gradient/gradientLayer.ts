@@ -1,5 +1,17 @@
 import { GradientCanvas } from './gradient'
 
+function parseColorScale(lyrOpts) {
+	if (lyrOpts && lyrOpts.layerOption && lyrOpts.layerOption.colorScaleValue) {
+		let opt = lyrOpts.layerOption;
+		if (opt.maxIntensity || opt.minIntensity) return;
+		let { colorScaleLabel,colorScaleValue } = opt;
+		opt.maxIntensity = Number(colorScaleLabel[0]);
+		opt.minIntensity = Number(colorScaleLabel[colorScaleLabel.length-1]);
+		opt.colorScale = Object.assign([],colorScaleValue).reverse();
+	}
+	return lyrOpts
+}
+
 export class GradientLayer extends L.Layer implements ILayer{
     
     id: string
@@ -12,7 +24,9 @@ export class GradientLayer extends L.Layer implements ILayer{
     opacity: number
     dataSet: { label: string; value: string }[]
     status:"loading"|"loaded"|"error"
-    group: string
+    icon?: string
+    iconUrl?: string
+    group: Array<{ name: string, order: number }>
     enable: boolean
 
     protected _canvas:HTMLCanvasElement = null
@@ -53,7 +67,9 @@ export class GradientLayer extends L.Layer implements ILayer{
         this.sortable = sortable
         this.opacity = opacity
         this.dataSet = dataSet
-        this.lyrOpts = lyrOpts
+        this.icon = lyrOpts?.layerOption?.icon
+        this.iconUrl = lyrOpts?.layerOption?.iconUrl
+        this.lyrOpts = parseColorScale(lyrOpts)
         this.group = group
         this.enable = enable
     }
@@ -122,6 +138,7 @@ export class GradientLayer extends L.Layer implements ILayer{
                 this.times = this.dataIndexDef.map(i=>i.time08)
                 
                 await this.setTimeData()
+                this.status = "loaded"
                 this.fireEvent("loaded")
             }catch(e){
                 this.status = "error"
@@ -193,6 +210,7 @@ export class GradientLayer extends L.Layer implements ILayer{
             },
             ...this.lyrOpts.layerOption
         })
+//console.log("[GradientCanvas]", this._builder)
         this._context = this._canvas.getContext("2d")
     }
 
@@ -242,6 +260,10 @@ export class GradientLayer extends L.Layer implements ILayer{
 export class WavePeriodGradientLayer extends GradientLayer{
     constructor(opts){
         super(opts)
+        if (this.lyrOpts.layerOption) {
+            this.lyrOpts.layerOption.maxIntensity *= 100
+            this.lyrOpts.layerOption.minIntensity *= 100
+        }
     }
     async setTimeData(time:string = this.times[0]){
         try{
@@ -283,6 +305,10 @@ export class WavePeriodGradientLayer extends GradientLayer{
 export class WaveHeightGradientLayer extends GradientLayer{
     constructor(opts){
         super(opts)
+        if (this.lyrOpts.layerOption) {
+            this.lyrOpts.layerOption.maxIntensity *= 100
+            this.lyrOpts.layerOption.minIntensity *= 100
+        }
     }
     async setTimeData(time:string = this.times[0]){
         try{

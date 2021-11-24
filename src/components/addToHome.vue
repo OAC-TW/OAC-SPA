@@ -7,7 +7,7 @@ div
             v-model="neverShowAddToScreenModel"
         ) 不再顯示
     el-carousel(trigger="click" type="card" indicator-position="outside" arrow="never" :autoplay="false")
-        el-carousel-item(v-for="src,key in guideStepModel" :key="key")
+        el-carousel-item(v-for="(src,key) in guideStepModel" :key="key")
             img(:src="src" style="width:100%;")
             h3(style="text-align: center;") 步驟 {{key+1}}
 </template>

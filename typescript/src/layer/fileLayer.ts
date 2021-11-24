@@ -14,6 +14,7 @@ export class FileLayer extends L.Layer implements ILayer{
     imgUrl?: string
     legendColor?: string
     icon?: string
+    iconUrl?: string
     status:"loading"|"loaded"|"error"
     lyrOpts:any
 
@@ -39,6 +40,8 @@ export class FileLayer extends L.Layer implements ILayer{
         this.sortable = sortable
         this.opacity = opacity
         this.dataSet = dataSet
+        this.icon = lyrOpts?.layerOption?.icon
+        this.iconUrl = lyrOpts?.layerOption?.iconUrl
         this.lyrOpts = lyrOpts
     }
 

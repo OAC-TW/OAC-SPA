@@ -33,7 +33,7 @@
 			template(slot="suffix")
 		el-button(type="primary" round @click="latLngLocate") 查詢
 
-	//- searchDummy()
+	searchDummy()
 
 </template>
 

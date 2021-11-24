@@ -1,5 +1,8 @@
+const fs = require('fs')
+const path = require('path');
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
 const { InjectManifest } = require('workbox-webpack-plugin')
+const { ESBuildMinifyPlugin } = require('esbuild-loader');
 
 const { gitDescribe, gitDescribeSync } = require('git-describe')
 process.env.VUE_APP_GIT_HASH = gitDescribeSync().hash
@@ -8,17 +11,74 @@ process.env.VUE_APP_BUILDTIME = (new Date()).toISOString()
 process.env.VUE_APP_BUILD = `v${process.env.VUE_APP_VERSION}-${process.env.VUE_APP_GIT_HASH}-${process.env.VUE_APP_BUILDTIME}`
 const injectStr = `const BUILD_VERSION = '${process.env.VUE_APP_BUILD}';\n`;
 
+let devHttpsCert = false;
+try {
+    devHttpsCert = {
+        key: fs.readFileSync('cert/server.key'),
+        cert: fs.readFileSync('cert/server.crt'),
+	}
+}
+catch (ex) {
+	// nop
+}
+
 module.exports = {
+    productionSourceMap: false,
+    pages: {
+        index: {
+            // entry for the page
+            entry: 'src/intro/js/main.js',
+            // the source template
+            template: 'public/index.html',
+            // output as dist/map.html
+            filename: 'index.html',
+           // when using title option,
+            // template title tag needs to be <title><%= htmlWebpackPlugin.options.title %></title>
+            title: '海域遊憩平台一站式網站',
+            // chunks to include on this page, by default includes
+            // extracted common chunks and vendor chunks.
+            // chunks: ['chunk-vendors', 'chunk-common', 'index']
+        },
+        map: {
+            // entry for the page
+            entry: 'src/main.js',
+            // the source template
+            template: 'public/map.html',
+            // output as dist/map.html
+            filename: 'map.html',
+           // when using title option,
+            // template title tag needs to be <title><%= htmlWebpackPlugin.options.title %></title>
+            title: '海域整合資訊',
+            // chunks to include on this page, by default includes
+            // extracted common chunks and vendor chunks.
+            // chunks: ['chunk-vendors', 'chunk-common', 'index']
+        },
+    },
     configureWebpack: config => {},
     chainWebpack: config => {
+        config.resolve.modules
+            .add(path.resolve('src/intro/js/'))
+            .add(path.resolve('src/intro/scss/'))
+            .add(path.resolve('src/intro/img/'))
+            // .add(path.resolve('src/assets/intro/'))
 
+        config.devtool('eval');
         if (process.env.NODE_ENV === 'production') {
+            config.devtool('hidden-source-map');
+
             config.plugins.delete('preload');
             config.plugins.delete('prefetch');
             config.optimization.minimize(true);
             config.optimization.splitChunks({
                 chunks: 'async'
             })
+            config.optimization.minimizers.delete('terser');
+            config.optimization.minimizer('esbuild')
+            .use(ESBuildMinifyPlugin, [{
+                target: 'es2015', // es2015, es2020, esnext
+                css: true,
+            }])
+
 
             config.plugin('InjectManifest')
                 .use(InjectManifest, [{
@@ -91,16 +151,67 @@ module.exports = {
             .use('worker-loader')
             .loader('worker-loader')
             .end()
+
+        // seems bug @ element-ui/lib/locale/index.js not exist
+        // config.module.rule('js').uses.delete('cache-loader')
+        // config.module.rule('js').uses.delete('babel-loader')
+        // config.module.rule('js').uses.delete('thread-loader')
+        // config.module.rule('js').use('swc-loader')
+        //     .loader('swc-loader')
+        //     .options({
+        //         jsc: {
+        //             target: "es5", // es5 es2015(es6)
+        //             parser: {
+        //                 syntax: "ecmascript",
+        //             },
+        //             //loose: true,
+        //         },
+        //     })
+
+        // use map.html
+        // config.plugin('html').tap((opts) => {
+        //     opts[0].filename = './map.html';
+        //     opts[0].template = "./public/map.html"
+        //     return opts;
+        // });
+        // // copy exist index.html
+        // config.plugin('copy').tap((opts) => {
+        //     opts[0][0].ignore.forEach(opt => {
+        //         if (opt.glob === 'index.html') {
+        //             opt.glob = 'map.html';
+        //         }
+        //         return opt;
+        //     });
+        //     return opts;
+        // });
     },
     devServer: {
         disableHostCheck: true, // fix socket err
-        writeToDisk: true
+        // host: 'lvh.me',
+        public: 'lvh.me',
+        sockHost: 'lvh.me', // not work!!!!
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        },
+        http2: !!devHttpsCert,
+        https: devHttpsCert,
+        writeToDisk: false
     },
     css: {
         loaderOptions: {
             sass: { // global style
-                data: `@import "~@/custom.scss";`
-            }
+                // data: `@import "~@/custom.scss";`,
+                data: (loaderContext) => {
+                    // More information about available properties https://webpack.js.org/api/loaders/
+                    const { resourcePath, rootContext } = loaderContext;
+                    const relativePath = path.relative(rootContext, resourcePath);
+                    // console.log('[scss]', relativePath, resourcePath);
+                    if (relativePath === "src/intro/scss/style.scss") { // skip intro page
+                        return '';
+                    }
+                    return `@import "~@/custom.scss";`;
+                  },
+            },
         }
     },
     publicPath: './',

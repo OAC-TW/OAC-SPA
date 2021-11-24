@@ -4,7 +4,7 @@
             :style="`bottom:${offsetBottom}px`"
             :reservedHeight='reservedHeightModel'
             :headerHeight="headerHeightModel"
-            :height="caculatedHeight||'70vh'"
+            :height="caculatedHeight ||`${height}vh`"
             backgroundColor='#ffffff'
             ref="pullup"
         ) 
@@ -42,8 +42,8 @@ export default {
             default:70
         },
         height:{
-            type:String,
-            default:"70vh"
+            type:Number,
+            default:70
         },
         offsetBottom:{
             type:Number,
@@ -110,13 +110,14 @@ export default {
             this.$emit('input',this.isClosed?'close':'bottom')
         },
         caculatePullupHeight(){
-			setTimeout(()=>{
+			/*setTimeout(()=>{
 				// if(!this.$refs.pullup) return
 				let hpx = this.$refs.pullup.$el.querySelector('.pullup__wrapper').clientHeight
 				let hvh = Math.round(hpx * 100 / window.innerHeight)
+				let mxh = this.height || 70;
 				console.log(`caculatePullupHeight new height : ${hpx}px,${hvh}vh`)
-				this.caculatedHeight = `${ hvh < 70 ? hvh : 70 }vh`
-			},250)
+				this.caculatedHeight = `${ hvh < mxh ? hvh : mxh }vh`
+			},250)*/
 		},
         handleTouchEnd(e){
             if(this.isClosed){

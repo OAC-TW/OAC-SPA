@@ -23,6 +23,7 @@ export default {
 
             qResult.forEach(lyr => {
                 lyr.layerCatelog.forEach(c => {
+                    if (!state.history[c.value]) state.history = Object.defineProperty({...state.history}, c.value, { configurable: true, enumerable: true, writable: true, value: [] });
                     const ptr = state.history[c.value]
                     const exsist = ptr.find(r => !Object.keys(lyr.data).some(k => lyr.data[k] !== r.data[k]))
                     const fIndex = ptr.indexOf(exsist)
